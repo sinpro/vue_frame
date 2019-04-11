@@ -1,0 +1,5 @@
+npm install iview axios vuex jquery less less-loader qs vue-layer vue-wechat-title js-cookie js-md5 js-base64 --save-dev
+
+<Icon type="md-home" /> <Icon type="ios-albums" /> <Icon type="md-albums" /> <Icon type="md-analytics" />
+<Icon type="md-outlet" /> <Icon type="ios-arrow-dropdown-circle" /> <Icon type="ios-arrow-dropup-circle" />
+<Icon type="md-funnel" /> <Icon type="ios-barcode" />
