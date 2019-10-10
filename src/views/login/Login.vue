@@ -5,7 +5,7 @@
             <i-col :xs="3" :sm="5" :md="7" :lg="9">&nbsp;&nbsp;</i-col>
             <i-col :xs="18" :sm="14" :md="10" :lg="6" class="loginform">
                 <Form ref="loginForm" autoComplete="on" :model="loginForm" :rules="loginRules" class="card-box login-form">
-                    <Form-item prop="acctname" style="position: relative;">
+                    <Form-item  style="position: relative;">
                         <span style="position: absolute;left: 0;top:0;height: 40px;background: #fff;padding: 4px 7px;font-weight: 400;font-size: 20px;border-radius: 6px 0 0 6px;border: 1px solid #dddee1"><Icon type="ios-arrow-dropup-circle" /></span>
                         <Select v-model="loginForm.accttype" style="width:100%">
                             <Option v-for="item in cityList" :value="item.value" :key="item.value">{{ item.label }}</Option>
@@ -66,6 +66,15 @@ import Cookies from 'js-cookie';
 export default {
   name: 'login',
   data() {
+      const validateAcctname = (rule, value, callback) => {
+        if (value.length == 0) {
+          callback(new Error('请输入账号'));
+        } else if (value!= '13145240506') {
+          callback(new Error('账号错误'));
+        }else{
+          callback();
+        }
+      };
       const validateEmail = (rule, value, callback) => {
         if (!isWscnEmail(value)) {
             callback(new Error('请输入正确的合法邮箱'));
@@ -76,7 +85,9 @@ export default {
       const validatePass = (rule, value, callback) => {
         if (value.length < 6) {
           callback(new Error('密码不能小于6位'));
-        } else {
+        } else if (value!= '123456') {
+          callback(new Error('密码错误'));
+        }else {
           callback();
         }
       };
@@ -103,6 +114,9 @@ export default {
           password: ''
         },
         loginRules: {
+          acctname:[
+            {required: true, trigger: 'blur', validator: validateAcctname}
+          ],
           email: [
               {required: true, trigger: 'blur', validator: validateEmail}
           ],
@@ -119,31 +133,37 @@ export default {
 
   },
   methods: {
-    handleLogin() {
-      let loginData = [];
-      loginData.push({
-          Role: this.loginForm.accttype,
-          UsersName: this.loginForm.acctname,
-          PassWord: this.loginForm.password,
-      });
-      let params = { loginData: JSON.stringify(loginData) }
-      this.$post('Home/FirmLoginMobil', params)
-          .then((res) => {
-              console.log(res)
-              if (res.Success) {
-                Cookies.set('Admin-Token', 'doujiangdong');
-                this.$store.commit('SET_TOKEN', 'doujiangdong');
-                this.$router.push({ path: '/' });
-              } else {
-                  this.$layer.msg(res.Message)
-              }
-          }).catch((err) => {
-              console.log(err);
-          })
-
-
-
-
+    handleLogin(name) {
+      this.$refs[name].validate((valid) => {
+          if (valid) {
+            Cookies.set('Admin-Token', 'doujiangdong');
+            this.$store.commit('SET_TOKEN', 'doujiangdong');
+            this.$router.push({ path: '/' });
+            return false;
+            let loginData = [];
+            loginData.push({
+                Role: this.loginForm.accttype,
+                UsersName: this.loginForm.acctname,
+                PassWord: this.loginForm.password,
+            });
+            let params = { loginData: JSON.stringify(loginData) }
+            this.$post('Home/FirmLoginMobil', params)
+                .then((res) => {
+                    console.log(res)
+                    if (res.Success) {
+                      Cookies.set('Admin-Token', 'doujiangdong');
+                      this.$store.commit('SET_TOKEN', 'doujiangdong');
+                      this.$router.push({ path: '/' });
+                    } else {
+                        this.$layer.msg(res.Message)
+                    }
+                }).catch((err) => {
+                    console.log(err);
+                })  
+          } else {
+              this.$Message.error('Fail!');
+          }
+      }) 
     },
   },
   mounted() {
